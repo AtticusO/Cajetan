@@ -1,0 +1,23 @@
+Im need help making a program which uses statistics and data science to evaluate NFL parlays based on a number of metrics and returns a confidence
+rating out of 100, the program is called Cajetan and it will:
+Gather NFL data and store it:
+      - Individual stats such as pass %, passing yards, passing touchdowns, receptions, receiving yards, rush yards, and touchdowns
+      - Team stats such as pts against, points for, total rush yards, pass yards, receiving yards, receptions, touchdowns by position
+      - Comparative stats such as rush yards against, pass yards against, receiving yards against, receptions against, touchdowns against by position
+      - Success percentage of commonly run schemes and personnel of a team vs defensive schemes and personnel of another team
+      - A teams defensive performance in certain situations such as redzone, late game, or against running quarterbacks
+
+
+  Takes lines as input and provides rating
+      - Evaluates each leg of the bet in context of data
+      - Takes into consideration the opposing teams defensive performance in specific relevant situations, such as the performance of a defense against an
+  outside zone run scheme when the bet includes an over on a running backs yards who is on a team which runs a lot of outside zone, or the historic
+  performance over the current season of a defense against running quarterbacks when the parlay includes the over on a quarterbacks rushing yards
+      - Examines player performance in a teams commonly run schemes and personnel and how the well opposing teams defense has historically inhibited
+  production of that position in that scheme or personnel, such as a wr or tight ends performance in 12 personnel and how the defense of the team their
+  playing has performed in preventing receiving yards when playing against 12 personnel
+      - Also takes into consideration prediction models purely based on historic data across the season
+
+  Outputs rating of both individual bets and overall line
+      - Confidence rating as percentage
+      - Tells why a low or high rating is given

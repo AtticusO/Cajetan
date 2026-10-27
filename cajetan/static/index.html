@@ -1,0 +1,288 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cajetan</title>
+<style>
+  :root {
+    color-scheme: dark;
+    --bg: #061710; --panel: #0b2417; --text: #eef3ec; --muted: #a3b8a8; --border: #173b28;
+    --accent: #f28c28; --accent-text: #1a0f02;
+    --strong: #4fd27c; --lean: #8fd65a; --flip: #f2c14e; --fade: #f28c28; --avoid: #ff5f57;
+    --plus: #5fe38a; --minus: #ff6b6b; --chip: #11301f; --warn-bg: #3d2a10; --warn: #ffb35c;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text);
+         font: 15px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  header { padding: 18px 24px; border-bottom: 1px solid var(--border); background: var(--panel); }
+  header h1 { margin: 0; font-size: 38px; line-height: 1.1; letter-spacing: .01em; }
+  header p { margin: 2px 0 0; color: var(--muted); font-size: 13px; }
+  main { display: grid; grid-template-columns: minmax(300px, 380px) 1fr; gap: 20px; padding: 20px 24px;
+         max-width: 1400px; margin: 0 auto; }
+  @media (max-width: 860px) { main { grid-template-columns: 1fr; padding: 16px; } }
+  .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: 18px; }
+  .input-panel { align-self: start; }
+  h2 { font-size: 15px; margin: 0 0 12px; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); }
+  label { display: block; font-size: 13px; font-weight: 600; margin: 12px 0 4px; }
+  textarea, input { width: 100%; font: inherit; color: var(--text); background: var(--bg);
+                    border: 1px solid var(--border); border-radius: 6px; padding: 8px 10px; }
+  textarea { min-height: 190px; resize: vertical; font-family: ui-monospace, Consolas, monospace; font-size: 14px; }
+  textarea:focus, input:focus { outline: 2px solid var(--accent); outline-offset: -1px; }
+  .row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+  .hint { font-size: 12px; color: var(--muted); margin-top: 4px; }
+  button { font: inherit; cursor: pointer; border-radius: 6px; }
+  .primary { width: 100%; margin-top: 16px; padding: 10px; border: none; background: var(--accent);
+             color: var(--accent-text); font-weight: 600; }
+  .primary:disabled { opacity: .6; cursor: wait; }
+  .guide { margin-top: 22px; padding-top: 16px; border-top: 1px solid var(--border); }
+  .guide h3 { font-size: 13px; margin: 14px 0 6px; color: var(--text); }
+  .guide table { font-size: 13px; }
+  .guide td { padding: 4px 6px; }
+  .guide td:last-child { color: var(--muted); }
+  .guide button { border: 1px solid var(--border); background: var(--chip); color: var(--text); text-align: left;
+                  padding: 2px 7px; font-size: 12px; font-family: ui-monospace, Consolas, monospace; }
+  .guide button:hover { border-color: var(--accent); color: var(--accent); }
+  .empty { color: var(--muted); text-align: center; padding: 60px 20px; }
+  .error-box { background: var(--warn-bg); color: var(--warn); border-radius: 6px; padding: 10px 12px; }
+  .note { color: var(--muted); font-size: 13px; margin-bottom: 12px; }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  th { font-size: 12px; color: var(--muted); font-weight: 600; text-transform: uppercase; }
+  td.num, th.num { text-align: right; white-space: nowrap; }
+  .table-wrap { overflow-x: auto; }
+  .badge { display: inline-block; padding: 1px 8px; border-radius: 999px; font-size: 12px; font-weight: 600;
+           color: #fff; white-space: nowrap; }
+  .v-strong { background: var(--strong); } .v-lean { background: var(--lean); }
+  .v-flip { background: var(--flip); } .v-fade { background: var(--fade); }
+  .v-avoid, .v-error { background: var(--avoid); }
+  .c-strong { color: var(--strong); } .c-lean { color: var(--lean); } .c-flip { color: var(--flip); }
+  .c-fade { color: var(--fade); } .c-avoid { color: var(--avoid); }
+  .conf { font-weight: 700; }
+  .card { border: 1px solid var(--border); border-left-width: 5px; border-radius: 8px; padding: 14px 16px; margin-top: 14px; }
+  .card h3 { margin: 0; font-size: 16px; display: flex; justify-content: space-between; gap: 12px; align-items: baseline; }
+  .card .big { font-size: 22px; font-weight: 700; }
+  .card .matchup { color: var(--muted); font-size: 13px; margin: 2px 0 8px; }
+  .card .summary { font-weight: 600; margin: 6px 0; }
+  .card .why { font-style: italic; margin: 6px 0 10px; }
+  .bar { height: 6px; border-radius: 3px; background: var(--chip); overflow: hidden; margin: 6px 0 8px; }
+  .bar > div { height: 100%; }
+  ul.reasons { list-style: none; margin: 0; padding: 0; font-size: 14px; }
+  ul.reasons li { display: grid; grid-template-columns: 22px 1fr; gap: 4px; padding: 3px 0; }
+  .s-plus { color: var(--plus); font-weight: 700; } .s-minus { color: var(--minus); font-weight: 700; }
+  .s-ctx { color: var(--muted); } li.ctx { color: var(--muted); }
+  li.plus { color: var(--plus); } li.minus { color: var(--minus); }
+  header { border-bottom: 3px solid var(--accent); }
+  header h1 { color: var(--accent); }
+  h2 { color: var(--accent); }
+  th { color: var(--accent); }
+  .badge { color: #061710; }
+  code { color: var(--accent); }
+  .warn { color: var(--warn); font-size: 13px; margin-top: 6px; }
+  .grade { color: var(--muted); font-size: 12px; margin-top: 8px; }
+  .parlay { margin-top: 18px; border-left-color: var(--accent); }
+  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin: 10px 0; }
+  .stat { background: var(--chip); border-radius: 6px; padding: 8px 10px; }
+  .stat .k { font-size: 12px; color: var(--muted); } .stat .v { font-size: 20px; font-weight: 700; }
+  .pos { color: var(--plus); } .neg { color: var(--minus); }
+  .disclaimer { color: var(--muted); font-size: 12px; margin-top: 16px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Cajetan</h1>
+  <p>Statistical confidence ratings for NFL parlays</p>
+</header>
+<main>
+  <section class="panel input-panel">
+    <h2>Your bet</h2>
+    <form id="form">
+      <label for="legs">Legs, one per line</label>
+      <textarea id="legs" spellcheck="false" placeholder="James Cook 80+ rush yds&#10;Dalton Kincaid under 3.5 rec&#10;BUF ML -180"></textarea>
+      <div class="hint">Lines starting with # are ignored. Add odds per leg, e.g. <code>-115</code>.</div>
+      <div class="row">
+        <div>
+          <label for="odds">Parlay odds</label>
+          <input id="odds" placeholder="+650" inputmode="numeric">
+        </div>
+        <div>
+          <label for="week">Week</label>
+          <input id="week" type="number" min="1" max="22" placeholder="next">
+        </div>
+        <div>
+          <label for="reasons">Reasons</label>
+          <input id="reasons" type="number" min="1" max="20" value="5">
+        </div>
+      </div>
+      <button class="primary" id="go" type="submit">Rate parlay</button>
+      <div class="hint">Ctrl+Enter to rate.</div>
+      <div class="hint">Visits and entered bets are logged.</div>
+    </form>
+    <div class="guide">
+      <h2>How to write bets</h2>
+      <p class="hint">Capitalisation, extra spaces and most abbreviations don't matter. Click an example to add it.</p>
+      <div id="guide"></div>
+    </div>
+  </section>
+
+  <section class="panel" id="out">
+    <h2>Rating</h2>
+    <div class="empty">Enter your legs and press <b>Rate parlay</b>.</div>
+  </section>
+</main>
+
+<script>
+const GUIDE = [
+  ["Player props", [
+    ["Josh Allen o 34.5 rush yds", "rushing yards over 34.5"],
+    ["Ja'Marr Chase u6.5 receptions", "receptions under 6.5"],
+    ["Jared Goff 250+ pass yds", "passing yards over 249.5"],
+    ["Jalen Hurts 2+ passing tds", "passing TDs over 1.5"],
+    ["Bijan Robinson o 119.5 rush + rec yds", "rushing + receiving yards"],
+    ["Saquon Barkley over 21.5 carries", "rush attempts"],
+    ["Patrick Mahomes over 24.5 completions", "completions"],
+    ["Patrick Mahomes o 36.5 pass attempts", "pass attempts"],
+    ["Patrick Mahomes u 0.5 ints", "interceptions"],
+    ["Jahmyr Gibbs anytime td", "anytime touchdown (also ATD)"],
+  ]],
+  ["Team bets (abbreviation, city or nickname)", [
+    ["BUF ML", "moneyline"],
+    ["Bills moneyline -150", "moneyline with odds"],
+    ["DET -3.5", "spread"],
+    ["Lions +3 -110", "spread with odds"],
+    ["BUF/MIA o 47.5", "game total"],
+    ["Packers @ Lions under 52.5 total", "game total"],
+    ["BUF team total over 26.5", "team total"],
+  ]],
+  ["Adding odds", [
+    ["Jahmyr Gibbs anytime td +120", "American odds at the end of a leg"],
+    ["DET -3.5 (-110)", "brackets work too"],
+  ]],
+];
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const pct = (p, d = 1) => (p * 100).toFixed(d) + "%";
+
+$("guide").innerHTML = GUIDE.map(([title, rows]) =>
+  `<h3>${esc(title)}</h3><table><tbody>${rows.map(([ex, means]) =>
+    `<tr><td><button type="button" data-leg="${esc(ex)}">${esc(ex)}</button></td><td>${esc(means)}</td></tr>`).join("")}</tbody></table>`
+).join("") + `<p class="hint">Player names are matched loosely ("K Walker" and small typos work). Each leg is rated against that team's next game unless you set a week.</p>`;
+$("guide").addEventListener("click", e => {
+  const b = e.target.closest("button[data-leg]");
+  if (!b) return;
+  const t = $("legs");
+  t.value = (t.value.trim() ? t.value.trim() + "\n" : "") + b.dataset.leg;
+  t.focus();
+});
+try { const saved = localStorage.getItem("cajetan-legs"); if (saved) $("legs").value = saved; } catch {}
+
+function band(conf) {
+  return conf >= 65 ? "strong" : conf >= 55 ? "lean" : conf >= 45 ? "flip" : conf >= 35 ? "fade" : "avoid";
+}
+function fmtProj(l) {
+  if (l.projection == null) return "–";
+  if (l.market === "anytime_td") return l.projection.toFixed(2) + " TDs";
+  if (l.market === "ml" || l.market === "spread") return (l.projection >= 0 ? "+" : "") + l.projection.toFixed(1) + " margin";
+  return l.projection.toFixed(1);
+}
+function american(p) {
+  if (p <= 0) return "–";
+  const dec = 1 / p;
+  return dec >= 2 ? "+" + Math.round((dec - 1) * 100) : String(Math.round(-100 / (dec - 1)));
+}
+
+function render(data) {
+  const legs = data.legs, P = data.parlay;
+  let h = `<h2>Rating</h2><div class="note">${esc(data.data_note)}</div>`;
+
+  h += `<div class="table-wrap"><table><thead><tr><th>#</th><th>Leg</th><th>Matchup</th>
+        <th class="num">Proj</th><th class="num">Confidence</th><th>Data</th><th>Verdict</th></tr></thead><tbody>`;
+  legs.forEach((l, i) => {
+    if (l.error) {
+      h += `<tr><td>${i + 1}</td><td>${esc(l.input)}</td><td>–</td><td class="num">–</td><td class="num">n/a</td>
+            <td>–</td><td><span class="badge v-error">error</span></td></tr>`;
+    } else {
+      const b = band(l.confidence);
+      h += `<tr><td>${i + 1}</td><td>${esc(l.leg)}</td><td>${esc(l.matchup)}</td><td class="num">${esc(fmtProj(l))}</td>
+            <td class="num conf c-${b}">${l.confidence}%</td><td>${esc(l.grade)}</td>
+            <td><span class="badge v-${b}">${esc(l.verdict)}</span></td></tr>`;
+    }
+  });
+  h += `</tbody></table></div>`;
+
+  legs.forEach((l, i) => {
+    if (l.error) {
+      h += `<div class="card" style="border-left-color:var(--avoid)"><h3><span>Leg ${i + 1}: ${esc(l.input)}</span></h3>
+            <div class="error-box" style="margin-top:8px">${esc(l.error)}</div></div>`;
+      return;
+    }
+    const b = band(l.confidence);
+    h += `<div class="card" style="border-left-color:var(--${b === "flip" ? "flip" : b})">
+      <h3><span>Leg ${i + 1}: ${esc(l.leg)}</span><span class="big c-${b}">${l.confidence}%</span></h3>
+      <div class="matchup">${esc(l.matchup)}</div>
+      <div class="bar"><div style="width:${l.confidence}%;background:var(--${b})"></div></div>
+      <div class="summary">${esc(l.summary)}</div>
+      ${l.why ? `<div class="why">${esc(l.why)}</div>` : ""}
+      <ul class="reasons">`;
+    for (const r of l.reasons) {
+      const [mark, cls] = r.sign > 0 ? ["+", "s-plus"] : r.sign < 0 ? ["−", "s-minus"] : ["·", "s-ctx"];
+      h += `<li class="${r.sign > 0 ? "plus" : r.sign < 0 ? "minus" : "ctx"}"><span class="${cls}">${mark}</span><span>${esc(r.text)}</span></li>`;
+    }
+    h += `</ul>`;
+    if (l.push_probability > 0.01)
+      h += `<div class="grade">Push chance ${pct(l.push_probability, 0)} (refunded, excluded from confidence)</div>`;
+    for (const n of l.notes || []) h += `<div class="warn">! ${esc(n)}</div>`;
+    h += `<div class="grade">Data reliability ${esc(l.grade)} (${l.reliability}/100)</div></div>`;
+  });
+
+  if (P.rated_legs > 0) {
+    h += `<div class="card parlay"><h3><span>Overall parlay</span><span class="big">${pct(P.probability)}</span></h3>
+      <div class="stats">
+        <div class="stat"><div class="k">Hit probability</div><div class="v">${pct(P.probability)}</div></div>
+        <div class="stat"><div class="k">Fair odds</div><div class="v">${american(P.probability)}</div></div>
+        <div class="stat"><div class="k">If independent</div><div class="v">${pct(P.independent_probability)}</div></div>
+        <div class="stat"><div class="k">Avg leg strength</div><div class="v">${pct(P.leg_strength, 0)}</div></div>`;
+    if (P.book_odds != null) {
+      const edge = P.probability - P.book_probability;
+      h += `<div class="stat"><div class="k">Book ${P.book_odds > 0 ? "+" : ""}${P.book_odds} implies</div><div class="v">${pct(P.book_probability)}</div></div>
+        <div class="stat"><div class="k">Edge</div><div class="v ${edge > 0 ? "pos" : "neg"}">${edge > 0 ? "+" : ""}${pct(edge)}</div></div>
+        <div class="stat"><div class="k">EV per unit</div><div class="v ${P.expected_value > 0 ? "pos" : "neg"}">${P.expected_value > 0 ? "+" : ""}${pct(P.expected_value)}</div></div>`;
+    }
+    h += `</div>`;
+    if (P.verdict) h += `<div class="why">${esc(P.verdict)}</div>`;
+    h += `<ul class="reasons">${(P.notes || []).map(n => `<li class="ctx"><span class="s-ctx">·</span><span>${esc(n)}</span></li>`).join("")}</ul></div>`;
+  }
+  h += `<div class="disclaimer">Cajetan is a statistics tool, not financial advice. Sportsbook margins mean even well-calibrated probabilities can lose money. Bet responsibly. Visits and entered bets are logged.</div>`;
+  $("out").innerHTML = h;
+}
+
+$("form").addEventListener("submit", async ev => {
+  ev.preventDefault();
+  const legs = $("legs").value;
+  try { localStorage.setItem("cajetan-legs", legs); } catch {}
+  const go = $("go");
+  go.disabled = true; go.textContent = "Rating…";
+  $("out").innerHTML = `<h2>Rating</h2><div class="empty">Crunching the numbers…</div>`;
+  try {
+    const res = await fetch("/api/rate", {
+      method: "POST", headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({legs, odds: $("odds").value.trim(), week: $("week").value, reasons: $("reasons").value}),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || res.statusText);
+    render(data);
+  } catch (e) {
+    const msg = e instanceof TypeError
+      ? "Couldn't reach the Cajetan server. Start it with `cajetan web` and open this page from the address it prints."
+      : e.message;
+    $("out").innerHTML = `<h2>Rating</h2><div class="error-box">${esc(msg)}</div>`;
+  } finally {
+    go.disabled = false; go.textContent = "Rate parlay";
+  }
+});
+$("legs").addEventListener("keydown", e => {
+  if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) $("form").requestSubmit();
+});
+</script>
+</body>
+</html>

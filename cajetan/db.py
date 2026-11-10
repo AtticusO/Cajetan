@@ -21,10 +21,12 @@ def connect(read_only: bool = False) -> duckdb.DuckDBPyConnection:
 
 
 def table_exists(con: duckdb.DuckDBPyConnection, name: str) -> bool:
-    row = con.execute(
+    # fetchall, not fetchone: DuckDB 2.x treats a result read with fetchone() as still
+    # open, and the next con.register() on this connection raises ResourceInUseException.
+    rows = con.execute(
         "SELECT count(*) FROM information_schema.tables WHERE table_name = ?", [name]
-    ).fetchone()
-    return bool(row and row[0])
+    ).fetchall()
+    return bool(rows and rows[0][0])
 
 
 @dataclass(frozen=True)
